@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Document</title>
+</head>
+<body>
+    
+    <main>
+        <canvas width="300" height="300"></canvas>
+        <canvas width="300" height="300"></canvas>
+    </main>
+    <script>
+        const ctx = document.getElementsByTagName("canvas").item(0).getContext("2d")
+        const ctxClock = document.getElementsByTagName("canvas").item(1).getContext("2d")
+        const canvasWidth = 300;
+        const canvasHeight = 300;
+        const radius = 130;
+        const longLine = 20;
+        const shortLine = 10;
+        const hourHand = radius * .45;
+        const minuteHand = radius * .60 ;
+        const secondHand = radius * .70 ;
+
+        createMainClock()
+        function createMainClock() {
+            ctx.arc(canvasWidth/2, canvasHeight/2, radius ,0, Math.PI * 2)
+            for(i = 0 ; i < 60 ; i++) {
+                let alpha = i * Math.PI * 2 / 60
+                let mainLine = (i %  5 === 0) ? longLine : shortLine
+                var x1 = Math.cos(alpha) * (radius-mainLine) + canvasWidth / 2
+                var y1 = Math.sin(alpha) * (radius-mainLine) + canvasHeight / 2
+                ctx.moveTo(x1 , y1)
+                var x2 = Math.cos(alpha) * radius + canvasWidth / 2
+                var y2 = Math.sin(alpha) * radius + canvasHeight / 2
+                ctx.lineTo(x2,y2)
+            }
+
+            ctx.stroke()
+        }
+        showTime()
+        function showTime() {
+            ctxClock.clearRect(0, 0, canvasWidth, canvasHeight)
+            let thisTime = new Date();
+            let hour = thisTime.getHours();
+            hour = (hour > 12) ? hour - 12 : hour;
+            hour = hour - 3 ;
+            hour = hour + (thisTime.getMinutes() + thisTime.getSeconds() / 60) / 60
+            let alpha = Math.PI * 2 * hour / 12;
+            drawHands(alpha , hourHand);
+            let minute = thisTime.getMinutes() + thisTime.getSeconds() / 60 ;
+            alpha = Math.PI * 2 * (minute - 15) / 60 ;
+            drawHands(alpha , minuteHand);
+            let second = thisTime.getSeconds();
+            alpha = Math.PI * 2 * (second - 15) / 60;
+            drawHands(alpha, secondHand);
+            setTimeout('showTime()' , 1000)
+        }
+        function drawHands(alpha , handName) {
+            ctxClock.beginPath();
+            ctxClock.moveTo(canvasWidth / 2, canvasHeight/2)
+            ctxClock.lineCap = 'square'
+            ctxClock.lineJoin = 'round'
+            ctxClock.lineWidth = (handName === hourHand) ? 3 : (handName === minuteHand) ? 2 : 1;
+            ctxClock.strokeStyle = (handName === hourHand) ? "#222" : (handName === minuteHand) ? "#666" : "#c20d0d"
+            let x = Math.cos(alpha) * handName + canvasWidth / 2;
+            let y = Math.sin(alpha) * handName + canvasHeight / 2;
+            ctxClock.lineTo(x, y)
+            ctxClock.stroke()
+        }
+    </script>
+</body>
+</html>
